@@ -1,0 +1,23 @@
+**CREATION OF AWS CLOUDFORMATION**
+
+aws cloudformation create-stack \
+  --stack-name aws_stack \
+  --template-body file://ec2.yml \
+  --parameters \
+    ParameterKey=MyKeyName,ParameterValue=ustwebserver1 \
+    ParameterKey=MyVpcId,ParameterValue=vpc-0203f862cf636fa5d
+
+**DESCRIBE THE STACK**
+
+aws cloudformation describe-stacks --stack-name awsStack
+
+**DESCRIBE STACK EVENTS**
+
+Aws cloudformation describe-stack-evets –stack-name awsStack
+
+**UPDATION OF STACK**
+
+aws cloudformation update-stack \
+  --stack-name your-stack-name \
+  --template-body file://updated-template.yaml \
+  --capabilities CAPABILITY_NAMED_IAM
