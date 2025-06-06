@@ -1,0 +1,46 @@
+Parameters:
+  MyKeyName:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: Select the keypair
+  EnvironmentName:
+    Description: Select the environment
+    Type: String
+    Default: dev
+    AllowedValues:
+      - dev
+      - prod
+  MyInstanceType:
+    Type: String
+    AllowedValues:
+      - t2.micro
+      - t2.small
+      - t2.medium
+  MyVpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: Select the VPC for this deployment
+
+Mappings:
+  MyRegionMap:
+    us-east-1: 
+      HVM64: ami-02457590d33d576c3
+    us-east-2:
+      HVM64: ami-0ae9f87d24d606be4
+      
+Conditions: 
+  IsProd: !Equals [!Ref EnvironmentName, prod]
+  IsDev: !Equals [ !Ref EnvironmentName, dev ]
+
+Resources:
+  MyEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !FindInMap
+        - MyRegionMap
+        - !Ref 'AWS::Region'
+        - HVM64
+      InstanceType: !Ref MyInstanceType
+      Tags:
+        - Key: Name
+          Value: !If [IsProd, "Prod-EC2","Dev-EC2"]
+        - Key: Env
+          Value: !Ref EnvironmentName
