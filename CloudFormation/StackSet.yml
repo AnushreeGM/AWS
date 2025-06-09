@@ -1,0 +1,50 @@
+Parameters:
+  EnvironmentName:
+    Type: String
+    Default: dev
+    AllowedValues:
+      - dev
+      - prod
+
+Mappings:
+  MyRegionMap:
+    us-east-1:
+      AMI: ami-02457590d33d576c3
+    eu-north-1:
+      AMI: ami-006b4a3ad5f56fbd6
+
+  MyEnvironmentMap:
+    dev:
+      Instance: t3.micro
+    prod:
+      Instance: t2.small
+
+Conditions:
+  IsProd: !Equals [!Ref EnvironmentName, prod]
+
+Resources:
+  MyVMInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !FindInMap 
+        - MyRegionMap
+        - !Ref 'AWS::Region'
+        - AMI
+      InstanceType: !FindInMap 
+        - MyEnvironmentMap
+        - !Ref EnvironmentName
+        - Instance
+      KeyName: ustwebserver1
+
+  ProdEIP:
+    Type: AWS::EC2::EIP
+    Condition: IsProd
+    Properties:
+      InstanceId: !Ref MyVMInstance
+
+Outputs:
+  InstanceID:
+    Value: !Ref MyVMInstance
+
+  InstancePublicIP:
+    Value: !GetAtt MyVMInstance.PublicIp
