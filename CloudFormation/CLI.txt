@@ -21,3 +21,11 @@ aws cloudformation update-stack \
   --stack-name your-stack-name \
   --template-body file://updated-template.yaml \
   --capabilities CAPABILITY_NAMED_IAM
+
+**CREATION OF CHANGE SET**
+
+aws cloudformation create-change-set \
+  --stack-name my-application \
+  --change-set-name my-change-set \
+  --template-body file://template.yaml \
+  --parameters file://parameters.json
