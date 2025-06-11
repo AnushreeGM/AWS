@@ -29,3 +29,9 @@ aws cloudformation create-change-set \
   --change-set-name my-change-set \
   --template-body file://template.yaml \
   --parameters file://parameters.json
+
+**DESCRIBE-CHANGE-SET**
+
+aws cloudformation describe-change-set \
+    --change-set-name my-change-set \
+    --stack-name my-stack
