@@ -8,139 +8,210 @@ aws ec2 run-instances \
   --security-group-ids sg-xxxxxxx \  # Security Group ID
   --subnet-id subnet-xxxxxxxx \  # Subnet ID
   --associate-public-ip-address   # Optional, to assign a public IP
+
+
 Describe EC2 Instances
+
 aws ec2 describe-instances --instance-ids i-xxxxxxxx
+
 To list all instances
+
 aws ec2 describe-instances
+
 get only instance id from all the instances with name and status
+
 aws ec2 describe-instances --query "Reservations[].Instances[].[InstanceId,Tags[?Key=='Name'].Value|[0],State.Name]" --output table
+
 Stop an EC2 Instance
+
 aws ec2 stop-instances --instance-ids i-xxxxxxxx
+
 Start an EC2 Instance
+
 aws ec2 start-instances --instance-ids i-xxxxxxxx
+
 Reboot an EC2 Instance
+
 aws ec2 reboot-instances --instance-ids i-xxxxxxxx
+
 Terminate an EC2 Instance
+
 aws ec2 terminate-instances --instance-ids i-xxxxxxxx
+
 Monitor an EC2 Instance (Enable/Disable CloudWatch Monitoring)
+
 aws ec2 monitor-instances --instance-ids i-xxxxxxxx
+
 Disable
+
 aws ec2 unmonitor-instances --instance-ids i-xxxxxxxx
+
 Create an AMI from an EC2 Instance
+
 aws ec2 create-image --instance-id i-xxxxxxxx --name "MyImage" --no-reboot
  
 List all the Security Groups with name and ID
+
 aws ec2 describe-security-groups --query "SecurityGroups[*].[GroupName,GroupId]" --output table
+
 Create security group
+
 aws ec2 create-security-group \
   --group-name my-security-group \
   --description "Allow SSH and HTTP access" \
   --region us-east-1
+
 Attach a Security Group to an EC2 Instance
+
 aws ec2 modify-instance-attribute \
   --instance-id i-xxxxxxxx \
   --groups sg-xxxxxxxx sg-yyyyyyyy
+
 Add Inbound Rule for HTTP (Port 80)
+
 aws ec2 authorize-security-group-ingress \
   --group-id sg-xxxxxxxx \  # Replace with your Security Group ID
   --protocol tcp \
   --port 80 \
   --cidr 0.0.0.0/0 \
   --region us-east-1
+
 Add Inbound Rule for HTTP (SSH 22)
+
 aws ec2 authorize-security-group-ingress \
   --group-id sg-055b36be6311a0e1d \
   --protocol tcp \
   --port 22 \
   --cidr 0.0.0.0/0 \
   --region us-east-1
+
 Allocate and Associate Elastic IP (EIP)
+
 aws ec2 allocate-address
+
 Associate the EIP with an instance
+
 aws ec2 associate-address --instance-id i-xxxxxxxx --allocation-id eipalloc-xxxxxxxx
+
 Create a Key Pair
+
 aws ec2 create-key-pair --key-name MyKeyPair --query 'KeyMaterial' --output text > MyKeyPair.pem
+
 chmod 400 MyKeyPair.pem
+
 Create a VPC with tag and cidr
+
 aws ec2 create-vpc \
   --cidr-block 172.16.0.0/16 \
   --tag-specifications 'ResourceType=vpc,Tags=[{Key=Name,Value=UST1-VPC}]' \
   --region us-east-1
+
 List VPCs based on tag
+
 aws ec2 describe-vpcs \
   --filters "Name=tag:Name,Values=name-of-vpc" \
   --query "Vpcs[*].VpcId" \
   --region us-east-1
+
 Create Public subnet with tag and cidr
+
 aws ec2 create-subnet \
   --vpc-id <your-vpc-id> \
   --cidr-block 172.16.1.0/24 \
   --availability-zone us-east-1a \
   --tag-specifications 'ResourceType=subnet,Tags=[{Key=Name,Value=UST1-SUBNET}]'
+
 List the subnets id
+
 aws ec2 describe-subnets \
   --filters "Name=tag:Name,Values=VPC-B-PubSub" \
   --query "Subnets[0].SubnetId" \
   --output text \
   --region us-east-1
+
 Create the route table
+
 aws ec2 create-route-table \
   --vpc-id <your-vpc-id> \
   --tag-specifications 'ResourceType=route-table,Tags=[{Key=Name,Value=UST1-RT}]'
+
 Verify the Route Table
+
 aws ec2 describe-route-tables \
   --filters "Name=tag:Name,Values=B-PubSub-RT" \
   --query "RouteTables[*].RouteTableId" \
   --region us-east-1
+
 List Route Tables with Tag and ID
+
 aws ec2 describe-route-tables \
   --query "RouteTables[*].[RouteTableId, Tags]" \
   --output table \
   --region us-east-1
+
 Associate the route table with subnet
+
 aws ec2 associate-route-table \
   --subnet-id <your-subnet-id> \
   --route-table-id <your-rt-id>
+
 Verify the Association
+
 aws ec2 describe-route-tables \
   --filters "Name=route-table-id,Values=$RT_ID" \
   --query "RouteTables[*].Associations" \
   --output table \
   --region us-east-1
+
 Create the Internet Gateway
+
 aws ec2 create-internet-gateway \
   --tag-specifications 'ResourceType=internet-gateway,Tags=[{Key=Name,Value=UST1-IGW}]'
+
 Get Internet Gateway ID
+
 aws ec2 describe-internet-gateways \
   --filters "Name=tag:Name,Values=UST-A-GW" \
   --query "InternetGateways[0].InternetGatewayId" \
   --output text \
   --region us-east-1
+
 Attach the internet gateway to vpc
+
 aws ec2 attach-internet-gateway \
   --internet-gateway-id <your-igw-id> \
   --vpc-id <your-vpc-id>
+
 Verify the Attachment
+
 aws ec2 describe-internet-gateways \
   --internet-gateway-id $IGW_ID \
   --query "InternetGateways[*].Attachments" \
   --output table \
   --region us-east-1
+
 Add Route to the Route Table
+
 aws ec2 create-route \
   --route-table-id <your-rt-id> \
   --destination-cidr-block 0.0.0.0/0 \
   --gateway-id <your-igw-id>
+
 Modify Subnet for Auto-assign Public IP
+
 aws ec2 modify-subnet-attribute \
   --subnet-id <your-subnet-id> \
   --map-public-ip-on-launch
+
 Create a Security Group
+
 aws ec2 create-security-group \
   --group-name UST1-SG \
   --description "Allow SSH and HTTP" \
   --vpc-id <your-vpc-id>
+
 (Allow SSH & HTTP)
+
 aws ec2 authorize-security-group-ingress \
   --group-id <your-sg-id> \
   --protocol tcp --port 22 --cidr 0.0.0.0/0
@@ -148,7 +219,9 @@ aws ec2 authorize-security-group-ingress \
 aws ec2 authorize-security-group-ingress \
   --group-id <your-sg-id> \
   --protocol tcp --port 80 --cidr 0.0.0.0/0
+
 Create EC2 instance
+
 aws ec2 run-instances \
   --image-id ami-0e449927258d45bc4 \
   --instance-type t2.micro \
@@ -167,22 +240,35 @@ systemctl enable httpd' \
   --region us-east-1
 
 Create SNS Topic 
+
 aws sns create-topic --name myTopic  (Copy arn)
+
 Subscribe an Email Address to the Topic
+
 aws sns subscribe \
   --topic-arn arn:aws:sns:us-east-1:123456789012:myTopic \
   --protocol email \
   --notification-endpoint your_email@example.com
+
 List Subscriptions
+
 aws sns list-subscriptions-by-topic --topic-arn arn:aws:sns:us-east-1:123456789012:myTopic
+
 Publish a Test Message to the Topic
+
 aws sns publish \
   --topic-arn arn:aws:sns:us-east-1:123456789012:myTopic \
   --subject "Test Notification" \
   --message "This is a test message sent from AWS CLI"
+
 Creation Cloudformation Task
+
 aws cloudformation create-stack --stack-name awsStack --template-body file://ec2.yml --parameters ParameterKey=MyKeyName,ParameterValue=ustwebserver1 ParameterKey=MyVpcId,ParameterValue=vpc-0203f862cf636fa5d
+
 Describe cloudformation stack
+
 aws cloudformation describe-stacks --stack-name awsStack
+
 Describe aws cloudformation stack events
+
 Aws cloudformation describe-stack-evets –stack-name awsStack
