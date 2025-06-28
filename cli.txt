@@ -1,3 +1,17 @@
+Create the user
+
+aws iam create-user --user-name cli-user
+
+Attach a policy
+
+aws iam attach-user-policy \
+  --user-name cli-user \
+  --policy-arn arn:aws:iam::aws:policy/AdministratorAccess
+
+Create access keys
+
+aws iam create-access-key --user-name cli-user
+
 Create EC2 Instance
 
 aws ec2 run-instances \
